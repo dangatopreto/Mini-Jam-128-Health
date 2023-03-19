@@ -21,6 +21,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _fallMultiplier = 2.5f;
     [SerializeField] private float _lowJumpMultiplier = 2f;
 
+    [field: Header("Player Attributes")]
+    [field: SerializeField] public int currentPlayerLives { get; private set; }     // The current number of the ship's lives
+    [field: SerializeField] public int totalPlayerLives { get; private set; } = 3;  // The total amount of the ship's lives
+
     [Header("Layers")]
     [SerializeField] private LayerMask _groundLayer;
 
@@ -35,10 +39,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _collisionRadius = 0.25f;
     [SerializeField] private Vector2 _bottomOffset;
 
+    [Space]
+    [Header("Object Pools")]
+    [SerializeField] private ObjectPooler _explosionPool;
+
+    [Space]
+    [Header("Other")]
+    [SerializeField] private Transform _explosionSpawnPoint;
+
     // Start is called before the first frame update
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        currentPlayerLives = totalPlayerLives;
         //_anim = GetComponentInChildren<CatAnimationHandler>();
     }
 
@@ -66,12 +79,16 @@ public class PlayerMovement : MonoBehaviour
 
             if (Input.GetButtonDown("Jump"))
             {
-                /*if (_onGround)
-                {*/
-                    //_anim.SetTrigger("jump");
+                if (currentPlayerLives > 0)
+                {
                     PlayerJump();
+                    TakeDamage();
                     OnPlayerExploded?.Invoke();
-                //}
+
+                    GameObject explosion = _explosionPool.GetObject();
+                    explosion.transform.position = _explosionSpawnPoint.position;
+                    explosion.SetActive(true);
+                }
             }
 
             if (Input.GetButtonDown("Fire1") && _onGround)
@@ -131,6 +148,10 @@ public class PlayerMovement : MonoBehaviour
 
         _rb.velocity = new Vector2(_rb.velocity.x, 0);
         _rb.velocity += Vector2.up * _jumpForce;
+    }
+    public void TakeDamage()
+    {
+        currentPlayerLives--;
     }
 
     private void OnDrawGizmos()
