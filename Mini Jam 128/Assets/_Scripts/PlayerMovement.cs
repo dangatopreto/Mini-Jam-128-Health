@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,8 @@ using DG.Tweening;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public static event Action OnPlayerExploded;
+
     private Rigidbody2D _rb;
     //private CatAnimationHandler _anim;
     [SerializeField] private GameObject _playerVisual;
@@ -42,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         _isActive = true;
+        InvokeRepeating("CorrectPlayerSize", 1f, 1f);
         //_anim.SetBool("isActive", true);
     }
 
@@ -62,11 +66,12 @@ public class PlayerMovement : MonoBehaviour
 
             if (Input.GetButtonDown("Jump"))
             {
-                if (_onGround)
-                {
+                /*if (_onGround)
+                {*/
                     //_anim.SetTrigger("jump");
                     PlayerJump();
-                }
+                    OnPlayerExploded?.Invoke();
+                //}
             }
 
             if (Input.GetButtonDown("Fire1") && _onGround)
@@ -106,6 +111,8 @@ public class PlayerMovement : MonoBehaviour
         //_anim.SetBool("onGround", _onGround);
     }
 
+    private void CorrectPlayerSize() => _playerVisual.transform.localScale = Vector3.one;
+
     private void PlayerRun(Vector2 dir)
     {
         if (!_canMove)
@@ -117,7 +124,7 @@ public class PlayerMovement : MonoBehaviour
     private void PlayerJump()
     {
         _playerVisual.transform.DOShakeScale(0.6f, 1.1f).SetEase(Ease.OutSine);
-        float playerRotationValue = Random.Range(-180f, 180f);
+        float playerRotationValue = UnityEngine.Random.Range(-180f, 180f);
         Vector3 targetPlayerRotation = new Vector3(0f, 0f, playerRotationValue * 5f);
         _playerVisual.transform.DOLocalRotate(targetPlayerRotation, 1.2f).SetEase(Ease.OutSine);
         //_playerVisual.transform.DOPunchRotation(targetPlayerRotation, 0.8f).SetEase(Ease.OutSine);
