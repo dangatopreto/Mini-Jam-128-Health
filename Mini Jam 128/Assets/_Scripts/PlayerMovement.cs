@@ -98,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
 
         _onGround = Physics2D.OverlapCircle((Vector2)transform.position + _bottomOffset, _collisionRadius, _groundLayer);
 
-        if (_onGround)
+        if (_onGround && _playerVisual.transform.eulerAngles != Vector3.zero)
         {
             _playerVisual.transform.rotation = Quaternion.identity;
         }
