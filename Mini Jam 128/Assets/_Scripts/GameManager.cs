@@ -16,14 +16,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    [field: Header("Player Attributes")]
-    [field: SerializeField] public int currentPlayerLives { get; private set; }     // The current number of the ship's lives
-    [field: SerializeField] public int totalPlayerLives { get; private set; } = 3;  // The total amount of the ship's lives
+    
 
     private void Awake()
     {
         _instance = this;
-        currentPlayerLives = totalPlayerLives;
     }
 
     // Start is called before the first frame update
@@ -36,10 +33,5 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
-    }
-
-    public void TakeDamage()
-    {
-        currentPlayerLives--;
     }
 }

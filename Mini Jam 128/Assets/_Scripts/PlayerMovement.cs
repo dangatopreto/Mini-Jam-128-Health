@@ -7,6 +7,7 @@ using DG.Tweening;
 public class PlayerMovement : MonoBehaviour
 {
     public static event Action OnPlayerExploded;
+    public static event Action OnPlayerLifeAdded;
 
     private Rigidbody2D _rb;
     //private CatAnimationHandler _anim;
@@ -152,6 +153,20 @@ public class PlayerMovement : MonoBehaviour
     public void TakeDamage()
     {
         currentPlayerLives--;
+    }
+
+    public void AddHeart()
+    {
+        if ((currentPlayerLives + 1) > totalPlayerLives)
+        {
+            totalPlayerLives++;
+            currentPlayerLives++;
+        }
+        else
+        {
+            currentPlayerLives++;
+        }
+        OnPlayerLifeAdded?.Invoke();
     }
 
     private void OnDrawGizmos()

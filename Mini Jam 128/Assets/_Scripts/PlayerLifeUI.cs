@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerLifeUI : MonoBehaviour
 {
@@ -12,11 +13,13 @@ public class PlayerLifeUI : MonoBehaviour
     private void OnEnable()
     {
         PlayerMovement.OnPlayerExploded += DrawLives;            // Subscribe to the OnPlayerDamaged event
+        PlayerMovement.OnPlayerLifeAdded += DrawLives;            // Subscribe to the OnPlayerDamaged event
     }
 
     private void OnDisable()
     {
         PlayerMovement.OnPlayerExploded -= DrawLives;            // Unsubscribe to the OnPlayerDamaged event
+        PlayerMovement.OnPlayerLifeAdded -= DrawLives;            // Unsubscribe to the OnPlayerDamaged event
     }
 
     public void DrawLives()                                 // Draw as many life icons as necessary
@@ -41,9 +44,13 @@ public class PlayerLifeUI : MonoBehaviour
     {
         GameObject newLife = Instantiate(_lifeIconPrefab);
         newLife.transform.SetParent(transform);
+        newLife.transform.DOShakeScale(0.2f);
 
         RectTransform rectTransform = newLife.GetComponent<RectTransform>();
-        rectTransform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+        if (rectTransform != null)
+        {
+            rectTransform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+        }
 
         PlayerLives lifeComponent = newLife.GetComponent<PlayerLives>();
         lifeComponent.SetLifeImage(LivesStatus.Empty);
