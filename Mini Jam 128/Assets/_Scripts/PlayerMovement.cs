@@ -13,7 +13,8 @@ public class PlayerMovement : MonoBehaviour
     //private CatAnimationHandler _anim;
     [SerializeField] private GameObject _playerVisual;
     [SerializeField] private SpriteRenderer _sr;
-    [SerializeField] private Collider2D playerCollider;
+    [SerializeField] private Collider2D _playerCollider;
+    [SerializeField] private PlayerAnimationHandler _anim;
 
     [Space]
     [Header("Stats")]
@@ -34,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool _canMove;
     [SerializeField] private bool _onGround;
     [SerializeField] private bool _isActive;
+    private int _spriteSide = 1;
 
     [Space]
     [Header("Collision")]
@@ -52,6 +54,8 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _anim = GetComponentInChildren<PlayerAnimationHandler>();
+        _sr = GetComponentInChildren<SpriteRenderer>();
         currentPlayerLives = totalPlayerLives;
         //_anim = GetComponentInChildren<CatAnimationHandler>();
     }
@@ -75,20 +79,25 @@ public class PlayerMovement : MonoBehaviour
                 Vector2 dir = new Vector2(x, y);
 
                 PlayerRun(dir);
-                //_anim.SetHorizontalMovement(x, _rb.velocity.y);
+                _anim.SetHorizontalMovement(x, _rb.velocity.y);
+
+                if (x > 0)
+                {
+                    _spriteSide = 1;
+                    _anim.Flip(_spriteSide);
+                }
+                if (x < 0)
+                {
+                    _spriteSide = -1;
+                    _anim.Flip(_spriteSide);
+                }
             }
 
             if (Input.GetButtonDown("Jump"))
             {
                 if (currentPlayerLives > 0)
                 {
-                    PlayerJump();
-                    TakeDamage();
-                    OnPlayerExploded?.Invoke();
-
-                    GameObject explosion = _explosionPool.GetObject();
-                    explosion.transform.position = _explosionSpawnPoint.position;
-                    explosion.SetActive(true);
+                    PlayerJumpLogic();
                 }
             }
 
@@ -126,7 +135,22 @@ public class PlayerMovement : MonoBehaviour
             _playerVisual.transform.rotation = Quaternion.identity;
         }
 
-        //_anim.SetBool("onGround", _onGround);
+        _anim.SetBool("onGround", _onGround);
+    }
+
+    private void PlayerJumpLogic()
+    {
+        PlayerJump();
+        TakeDamage();
+        _anim.SetTrigger("playerHurt");
+        Color32 redColor = new Color32(221, 86, 57, 255);
+        StartCoroutine(PlayerChangeColorRoutine(redColor, 0.3f));
+        OnPlayerExploded?.Invoke();
+
+        GameObject explosion = _explosionPool.GetObject();
+        explosion.transform.position = _explosionSpawnPoint.position;
+        explosion.SetActive(true);
+        StartCoroutine(DetachExplosionRoutine(explosion));
     }
 
     private void CorrectPlayerSize() => _playerVisual.transform.localScale = Vector3.one;
@@ -167,6 +191,21 @@ public class PlayerMovement : MonoBehaviour
             currentPlayerLives++;
         }
         OnPlayerLifeAdded?.Invoke();
+    }
+
+    private IEnumerator DetachExplosionRoutine(GameObject objectToDetach)
+    {
+        objectToDetach.transform.parent = null;
+        yield return new WaitForSeconds(2f);
+        objectToDetach.transform.parent = _explosionPool.transform;
+        _explosionPool.ReturnObject(objectToDetach);
+    }
+
+    private IEnumerator PlayerChangeColorRoutine(Color32 color, float timeToWait)
+    {
+        _sr.DOColor(color, 0.1f);
+        yield return new WaitForSeconds(timeToWait);
+        _sr.DOColor(Color.white, 0.3f);
     }
 
     private void OnDrawGizmos()
