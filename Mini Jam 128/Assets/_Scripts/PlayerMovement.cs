@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
 
     [field: Header("Player Attributes")]
     [field: SerializeField] public int currentPlayerLives { get; private set; }     // The current number of the ship's lives
-    [field: SerializeField] public int totalPlayerLives { get; private set; } = 3;  // The total amount of the ship's lives
+    [field: SerializeField] public int totalPlayerLives { get; private set; }       // The total amount of the ship's lives
 
     [Header("Layers")]
     [SerializeField] private LayerMask _groundLayer;
@@ -47,8 +47,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private ObjectPooler _explosionPool;
 
     [Space]
+    [Header("Sounds")]
+    [SerializeField] private AudioClip[] _explosionSounds;
+    [SerializeField] private AudioClip[] _hurtSounds;
+
+    [Space]
     [Header("Other")]
     [SerializeField] private Transform _explosionSpawnPoint;
+    [SerializeField] private ParticleSystem _smokeParticleSystem;
 
     // Start is called before the first frame update
     private void Awake()
@@ -64,7 +70,6 @@ public class PlayerMovement : MonoBehaviour
     {
         _isActive = true;
         InvokeRepeating("CorrectPlayerSize", 1f, 1f);
-        //_anim.SetBool("isActive", true);
     }
 
     // Update is called once per frame
@@ -100,23 +105,6 @@ public class PlayerMovement : MonoBehaviour
                     PlayerJumpLogic();
                 }
             }
-
-            if (Input.GetButtonDown("Fire1") && _onGround)
-            {
-                //_anim.SetTrigger("attack");
-                // Attack Logic
-            }
-            if (Input.GetButtonDown("Fire2"))
-            {
-                // Attack Logic
-            }
-        }
-        else if (!_isActive)
-        {
-            if (Input.GetButtonDown("Fire2"))
-            {
-                // Attack Logic
-            }
         }
 
         if (_rb.velocity.y < 0)
@@ -142,10 +130,11 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerJump();
         TakeDamage();
+        PlayRandomClipFromArray(_explosionSounds);
         _anim.SetTrigger("playerHurt");
         Color32 redColor = new Color32(221, 86, 57, 255);
         StartCoroutine(PlayerChangeColorRoutine(redColor, 0.3f));
-        OnPlayerExploded?.Invoke();
+        StartCoroutine(SmokeParticlesCoroutine());
 
         GameObject explosion = _explosionPool.GetObject();
         explosion.transform.position = _explosionSpawnPoint.position;
@@ -177,6 +166,19 @@ public class PlayerMovement : MonoBehaviour
     public void TakeDamage()
     {
         currentPlayerLives--;
+        OnPlayerExploded?.Invoke();
+        PlayRandomClipFromArray(_hurtSounds);
+
+        if (currentPlayerLives <= 0)
+        {
+            PlayerDie();
+        }
+    }
+
+    public void PlayerDie()
+    {
+        _isActive = false;
+        GameManager.Instance.GameOver();
     }
 
     public void AddHeart()
@@ -193,6 +195,12 @@ public class PlayerMovement : MonoBehaviour
         OnPlayerLifeAdded?.Invoke();
     }
 
+    private void PlayRandomClipFromArray(AudioClip[] clipArray)
+    {
+        int randomNumber = UnityEngine.Random.Range(0, clipArray.Length - 1);
+        AudioManager.Instance.PlaySoundEffect(clipArray[randomNumber]);
+    }
+
     private IEnumerator DetachExplosionRoutine(GameObject objectToDetach)
     {
         objectToDetach.transform.parent = null;
@@ -206,6 +214,22 @@ public class PlayerMovement : MonoBehaviour
         _sr.DOColor(color, 0.1f);
         yield return new WaitForSeconds(timeToWait);
         _sr.DOColor(Color.white, 0.3f);
+    }
+
+    private IEnumerator SmokeParticlesCoroutine()
+    {
+        if (_smokeParticleSystem.gameObject.activeSelf == true)
+        {
+            yield return null;
+        }
+        else
+        {
+            _smokeParticleSystem.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.7f);
+            _smokeParticleSystem.Stop();
+            yield return new WaitForSeconds(0.7f);
+            _smokeParticleSystem.gameObject.SetActive(false);
+        }
     }
 
     private void OnDrawGizmos()

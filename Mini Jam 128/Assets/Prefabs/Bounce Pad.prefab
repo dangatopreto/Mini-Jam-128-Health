@@ -165,7 +165,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.6252381, y: 0.6863613}
+  m_Size: {x: 0.75365293, y: 0.6863613}
   m_EdgeRadius: 0
 --- !u!61 &8623869830686346513
 BoxCollider2D:
@@ -207,7 +207,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _bounceStrength: 12
   _bouncePadVisual: {fileID: 8623869828967482106}
-  _colliders: []
+  _springSfx:
+  - {fileID: 8300000, guid: 6bd0647fcb1e1ca41a45fad228f416bc, type: 3}
+  - {fileID: 8300000, guid: c1bb3954619af8d44bb8aab125463699, type: 3}
+  - {fileID: 8300000, guid: fca583f2b03161b4bbef8c6a9b51cce8, type: 3}
+  - {fileID: 8300000, guid: 0e02fb790b8a15f40b3f9042663e3b32, type: 3}
 --- !u!251 &8623869830686346543
 PlatformEffector2D:
   m_ObjectHideFlags: 0

@@ -62,6 +62,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce1dbd9f3b9db71499a0c6b28439fe20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _heartCollectableSfx:
+  - {fileID: 8300000, guid: 6f14923852683a041b4b80c966419015, type: 3}
+  - {fileID: 8300000, guid: 68ed704004ba1f840a28f3dc0dd08e3e, type: 3}
 --- !u!1 &3489956268684462449
 GameObject:
   m_ObjectHideFlags: 0

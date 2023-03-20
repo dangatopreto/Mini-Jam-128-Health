@@ -12,6 +12,13 @@ public class Spike : MonoBehaviour
     [SerializeField] private float _moveEndPointX;
     [SerializeField] private float _moveDuration;
 
+    private Collider2D _spikeCollider;
+
+    private void Awake()
+    {
+        _spikeCollider = GetComponent<Collider2D>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,5 +28,22 @@ public class Spike : MonoBehaviour
         {
             transform.DOMoveX(_moveEndPointX, _moveDuration).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            PlayerMovement player = collision.GetComponent<PlayerMovement>();
+            player.TakeDamage();
+            StartCoroutine(TurnOffSpikeColliderRoutine());
+        }
+    }
+
+    private IEnumerator TurnOffSpikeColliderRoutine()
+    {
+        _spikeCollider.enabled = false;
+        yield return new WaitForSeconds(0.5f);
+        _spikeCollider.enabled = true;
     }
 }

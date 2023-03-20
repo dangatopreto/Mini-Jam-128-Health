@@ -10,7 +10,9 @@ public class BouncePad : MonoBehaviour
 
     [SerializeField] private GameObject _bouncePadVisual;
     private Animator _anim;
-    [SerializeField] private Collider2D[] _colliders;
+    private Collider2D[] _colliders;
+
+    [SerializeField] private AudioClip[] _springSfx;
 
     private void Awake()
     {
@@ -27,6 +29,7 @@ public class BouncePad : MonoBehaviour
 
             StartCoroutine(TurnOffColliders(0.2f));
             ActivateBouncePadAnimation();
+            PlayRandomBounceSFX();
         }
     }
 
@@ -36,6 +39,7 @@ public class BouncePad : MonoBehaviour
         {
             StartCoroutine(TurnOffColliders(0.2f));
             ActivateBouncePadAnimation();
+            PlayRandomBounceSFX();
         }
     }
 
@@ -43,6 +47,12 @@ public class BouncePad : MonoBehaviour
     {
         _bouncePadVisual.transform.DOShakeScale(0.2f);
         _anim.SetTrigger("activatePad");
+    }
+
+    private void PlayRandomBounceSFX()
+    {
+        int randomNumber = Random.Range(0, _springSfx.Length - 1);
+        AudioManager.Instance.PlaySoundEffect(_springSfx[randomNumber]);
     }
 
     private IEnumerator TurnOffColliders(float waitTime)
