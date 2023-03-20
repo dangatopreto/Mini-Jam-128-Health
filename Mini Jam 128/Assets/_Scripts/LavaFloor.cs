@@ -17,9 +17,22 @@ public class LavaFloor : MonoBehaviour
     {
         if (_gameHasStarted)
         {
-            transform.Translate(0, 0.0025f, 0);
+            transform.Translate(0, 0.9f * Time.deltaTime, 0);
         }
     }
 
-    public void SetGameStartedBool() => _gameHasStarted = true;
+    public void SetGameStartedBool(bool value) => _gameHasStarted = value;
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            PlayerMovement player = collision.GetComponent<PlayerMovement>();
+            if (player != null)
+            {
+                player.TakeDamage();
+                player.PlayerDie();
+            }
+        }
+    }
 }

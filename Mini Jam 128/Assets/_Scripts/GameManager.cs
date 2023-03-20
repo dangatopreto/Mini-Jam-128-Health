@@ -69,6 +69,7 @@ public class GameManager : MonoBehaviour
     {
         _gameOverScreenObject.SetActive(true);
         _gameUIObject.SetActive(false);
+        _lavaFloor.SetGameStartedBool(false);
         Time.timeScale = 0;
     }
 
@@ -78,7 +79,7 @@ public class GameManager : MonoBehaviour
     {
         _initialScreenObject.SetActive(false);
         _gameUIObject.SetActive(true);
-        _lavaFloor.SetGameStartedBool();
+        _lavaFloor.SetGameStartedBool(true);
         Time.timeScale = 1;
     }
 
